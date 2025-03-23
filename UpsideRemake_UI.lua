@@ -2886,23 +2886,15 @@ local aa = {
         aj.__type = 'Paragraph'
         function aj.New(c, d)
             assert(d.Title, 'Paragraph - Missing Title')
-            if d.Content and d.Content ~= '' then
-                d.ContentLoop = ''
-            elseif d.ContentLoop and d.ContentLoop ~= '' then
-                d.Content = ''
-            else
-                d.Content = ''
-                d.ContentLoop = ''
-            end
-            if d.ContentLoop then
-                spawn(function()
-                    while d.ContentLoop and d.ContentLoop ~= '' do
-                        print("Updating ContentLoop:", d.ContentLoop)
-                        task.wait(0.5)
-                    end
-                end)
-            end
-            local e = ac(ag.Element)(d.Title, d.Content or '', d.ContentLoop or '', aj.Container, false)
+            d.Content = d.Content or ''
+            spawn(function()
+                while d.ContentLoop and d.ContentLoop ~= '' do
+                    print("Updating ContentLoop:", d.ContentLoop)
+                    d.ContentLoop = d.ContentLoop
+                    task.wait(0.5)
+                end
+            end)
+            local e = ac(ag.Element)(d.Title, d.Content, d.ContentLoop, aj.Container, false)
             e.Frame.BackgroundTransparency = 0.92
             e.Border.Transparency = 0.6
             return e
