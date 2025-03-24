@@ -2886,21 +2886,21 @@ local aa = {
         aj.__type = 'Paragraph'
         function aj.New(c, d)
             assert(d.Title, 'Paragraph - Missing Title')
-            d.Content = d.Content or ''
-            spawn(function()
-                while d.ContentLoop and d.ContentLoop ~= '' do
-                    print("Updating ContentLoop:", d.ContentLoop)
-                    d.ContentLoop = d.ContentLoop
+            if d.Content and d.Content ~= '' then
+                while true do
+                    d.Content = d.Content
                     task.wait(0.5)
                 end
-            end)
-            local e = ac(ag.Element)(d.Title, d.Content, d.ContentLoop, aj.Container, false)
+            else
+                d.Content = ''
+            end
+            local e = ac(ag.Element)(d.Title, d.Content, aj.Container, false)
             e.Frame.BackgroundTransparency = 0.92
             e.Border.Transparency = 0.6
             return e
         end
         return aj
-    end,    
+    end,
     [26] = function()
         local aa, ab, ac, ad, ae = b(26)
         local af, ag = game:GetService 'UserInputService', ab.Parent.Parent
