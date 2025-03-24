@@ -1,10 +1,9 @@
 repeat wait() until game:IsLoaded() and game.Players and game.Players.LocalPlayer and game.Players.LocalPlayer.Character
 getgenv().Settings = {
-    --[[ AUTOMATIC ]]
-    AutoWin = nil,
     --[[ MAIN ]]
     Train_Fuel = 0,
     Train_Distance = 0,
+    AutoWin = nil,
     AutoCollectBond = nil,
     AutoCollectCashBag = nil,
     NoPromotCooldown = nil,
@@ -29,7 +28,7 @@ getgenv().Settings = {
 
 }
 
-local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/TheG450/ThisHubNotPublicEnoughForUs/refs/heads/main/UpsideRemake_UI.lua"))()
+local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/TheG450/ThisHubNotPublicEnoughForUs/refs/heads/main/UpsideRemakeBeta_UI.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
@@ -39,7 +38,7 @@ local Window = Fluent:CreateWindow({
     TabWidth = 160,
     Size =  UDim2.fromOffset(620, 460), --UDim2.fromOffset(480, 360), --default size (580, 460)
     Acrylic = false, -- การเบลออาจตรวจจับได้ การตั้งค่านี้เป็น false จะปิดการเบลอทั้งหมด
-    Theme = "Rose", --Amethyst
+    Theme = "FeariseHub", --Amethyst
     MinimizeKey = Enum.KeyCode.LeftAlt
 })
 
@@ -74,7 +73,7 @@ do
     local TrainTitle = Tabs.pageMain:AddSection("Train")
     local TrainInfo = Tabs.pageMain:AddParagraph({
         Title = "Train Info",
-        Content = "Train Fuel: "..getgenv().Settings.Train_Fuel.."\nTrain Distance: "..getgenv().Settings.Train_Distance
+        Content = "Train Fuel: "..getgenv().Settings.Train_Fuel.."\nTrain Distance: "..getgenv().Settings.Train_Distance,
     })
     local HonkTrain = Tabs.pageMain:AddButton({
         Title = "Honk Train",
@@ -189,76 +188,188 @@ do
     
         textLabel.Parent = eSPUI
     end
+    function CreateCountdownUI(parent, time, name)
+        local countdownUI = Instance.new("ScreenGui")
+        countdownUI.Name = "CountdownUI"
+        countdownUI.DisplayOrder = 1e+07
+        countdownUI.IgnoreGuiInset = true
+        countdownUI.ScreenInsets = Enum.ScreenInsets.None
+        countdownUI.ResetOnSpawn = false
+        countdownUI.Parent = parent
 
-    --[[ SCRIPTS ]]--------------------------------------------------------
-    task.spawn(function()
-        ProximityPromptService.PromptShown:Connect(function(prompt)
-            if AutoWin.Value then
-                prompt.HoldDuration = 0
-            end
-        end)    
+        local mainFrame = Instance.new("Frame")
+        mainFrame.Name = "MainFrame"
+        mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+        mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+        mainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+        mainFrame.BorderSizePixel = 0
+        mainFrame.Position = UDim2.fromScale(0.5, 0.499)
+        mainFrame.Size = UDim2.fromScale(1, 1)
+
+        local countdownLabel = Instance.new("TextLabel")
+        countdownLabel.Name = "CountdownLabel"
+        countdownLabel.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json")
+        countdownLabel.Text = "COUNTDOWN"
+        countdownLabel.TextColor3 = Color3.fromRGB(211, 211, 211)
+        countdownLabel.TextScaled = true
+        countdownLabel.TextSize = 14
+        countdownLabel.TextWrapped = true
+        countdownLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+        countdownLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        countdownLabel.BackgroundTransparency = 1
+        countdownLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+        countdownLabel.BorderSizePixel = 0
+        countdownLabel.Position = UDim2.fromScale(0.5, 0.282)
+        countdownLabel.Size = UDim2.fromScale(0.307, 0.0869)
+
+        local uITextSizeConstraint = Instance.new("UITextSizeConstraint")
+        uITextSizeConstraint.Name = "UITextSizeConstraint"
+        uITextSizeConstraint.MaxTextSize = 49
+        uITextSizeConstraint.Parent = countdownLabel
+
+        countdownLabel.Parent = mainFrame
+
+        local timeLabel = Instance.new("TextLabel")
+        timeLabel.Name = "TimeLabel"
+        timeLabel.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json")
+        timeLabel.TextColor3 = Color3.fromRGB(211, 211, 211)
+        timeLabel.TextScaled = true
+        timeLabel.TextSize = 14
+        timeLabel.TextWrapped = true
+        timeLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+        timeLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        timeLabel.BackgroundTransparency = 1
+        timeLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+        timeLabel.BorderSizePixel = 0
+        timeLabel.Position = UDim2.fromScale(0.5, 0.5)
+        timeLabel.Size = UDim2.fromScale(0.583, 0.0782)
+
+        local uITextSizeConstraint1 = Instance.new("UITextSizeConstraint")
+        uITextSizeConstraint1.Name = "UITextSizeConstraint"
+        uITextSizeConstraint1.MaxTextSize = 44
+        uITextSizeConstraint1.Parent = timeLabel
+
+        timeLabel.Parent = mainFrame
+
+        local playerLabel = Instance.new("TextLabel")
+        playerLabel.Name = "PlayerLabel"
+        playerLabel.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json")
+        playerLabel.Text = "PLAYER: "..name
+        playerLabel.TextColor3 = Color3.fromRGB(211, 211, 211)
+        playerLabel.TextScaled = true
+        playerLabel.TextSize = 14
+        playerLabel.TextWrapped = true
+        playerLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+        playerLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        playerLabel.BackgroundTransparency = 1
+        playerLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+        playerLabel.BorderSizePixel = 0
+        playerLabel.Position = UDim2.fromScale(0.5, 0.694)
+        playerLabel.Size = UDim2.fromScale(0.583, 0.0556)
+
+        local uITextSizeConstraint2 = Instance.new("UITextSizeConstraint")
+        uITextSizeConstraint2.Name = "UITextSizeConstraint"
+        uITextSizeConstraint2.MaxTextSize = 32
+        uITextSizeConstraint2.Parent = playerLabel
+
+        playerLabel.Parent = mainFrame
+
+        mainFrame.Parent = countdownUI
     
-        local function Goto(TargetPosition)
-            humanoid:MoveTo(TargetPosition)
-            humanoid.MoveToFinished:Wait()
-        end
+        task.spawn(function()
+            local startTime = 15 * 60
+        
+            while true do
+                local remainingTime = startTime - workspace.DistributedGameTime
 
-        RunService.Stepped:Connect(function()
-            if character and AutoWin.Value then
-                for _, part in pairs(player.Character:GetDescendants()) do
-                    if part:IsA("BasePart") and part.CanCollide then
-                        part.CanCollide = false
-                    end
+                if remainingTime <= 0 then
+                    timeLabel.Text = "DONE"
+                    break
+                else
+                    local minutes = math.floor(remainingTime / 60)
+                    local seconds = math.floor(remainingTime % 60)
+        
+                    timeLabel.Text = string.format("%02d:%02d", minutes, seconds)
                 end
-            else
-                for _, part in pairs(player.Character:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        part.CanCollide = true
-                    end
-                end
+        
+                task.wait(1)
             end
         end)
     
-        RunService.Heartbeat:Connect(function()
-            local seconds = math.floor(workspace.DistributedGameTime)
-            local minutes = math.floor(workspace.DistributedGameTime / 60)
-            local hours = math.floor(workspace.DistributedGameTime / 60 / 60)
-            local Sseconds = seconds - (minutes * 60)
-            local Sminutes = minutes - (hours * 60)
-            local Baseplate = workspace:FindFirstChild("Baseplates")
-            if seconds > 20 and AutoWin.Value then
-                if Baseplate:FindFirstChild("FinalBasePlate") then
-                    local FinalBasePlate = Baseplate:FindFirstChild("FinalBasePlate")
-                    if FinalBasePlate then
-                        local OutlawBase = FinalBasePlate:FindFirstChild("OutlawBase")
-                        if OutlawBase then
-                            local Bridge = OutlawBase:FindFirstChild("Bridge")
-                            if Bridge then
-                                local BridgeControl = Bridge:FindFirstChild("BridgeControl")
-                                if BridgeControl then
-                                    local Crank = BridgeControl:FindFirstChild("Crank")
-                                    if Crank then
-                                        local Model = Crank:FindFirstChild("Model")
-                                        if Model then
-                                            local Mid = Model:FindFirstChild("Mid")
-                                            if Mid then
-                                                local Prompt = Mid:FindFirstChild("EndGame")
-                                                if Prompt then
-                                                    task.wait(1)
-                                                    for _, SandValue in pairs(FinalBasePlate:GetChildren()) do
-                                                        if SandValue.Name == "SandWall" and SandValue:IsA("BasePart") then
-                                                            SandValue.Size = Vector3.new(SandValue.Size.X, SandValue.Size.Y, 300)
+        return countdownUI
+    end
+
+    --[[ SCRIPTS ]]--------------------------------------------------------
+    task.spawn(function()
+        if game.PlaceId ~= 116495829188952 then
+            ProximityPromptService.PromptShown:Connect(function(prompt)
+                if AutoWin.Value then
+                    prompt.HoldDuration = 0
+                end
+            end)    
+        
+            local function Goto(TargetPosition)
+                humanoid:MoveTo(TargetPosition)
+                humanoid.MoveToFinished:Wait()
+            end
+    
+            RunService.Stepped:Connect(function()
+                if character and AutoWin.Value then
+                    for _, part in pairs(player.Character:GetDescendants()) do
+                        if part:IsA("BasePart") and part.CanCollide then
+                            part.CanCollide = false
+                        end
+                    end
+                else
+                    for _, part in pairs(player.Character:GetDescendants()) do
+                        if part:IsA("BasePart") then
+                            part.CanCollide = true
+                        end
+                    end
+                end
+            end)
+        
+            RunService.Heartbeat:Connect(function()
+                local seconds = math.floor(workspace.DistributedGameTime)
+                local minutes = math.floor(workspace.DistributedGameTime / 60)
+                local hours = math.floor(workspace.DistributedGameTime / 60 / 60)
+                local Sseconds = seconds - (minutes * 60)
+                local Sminutes = minutes - (hours * 60)
+                local Baseplate = workspace:FindFirstChild("Baseplates")
+                if seconds > 20 and AutoWin.Value then
+                    if Baseplate:FindFirstChild("FinalBasePlate") then
+                        local FinalBasePlate = Baseplate:FindFirstChild("FinalBasePlate")
+                        if FinalBasePlate then
+                            local OutlawBase = FinalBasePlate:FindFirstChild("OutlawBase")
+                            if OutlawBase then
+                                local Bridge = OutlawBase:FindFirstChild("Bridge")
+                                if Bridge then
+                                    local BridgeControl = Bridge:FindFirstChild("BridgeControl")
+                                    if BridgeControl then
+                                        local Crank = BridgeControl:FindFirstChild("Crank")
+                                        if Crank then
+                                            local Model = Crank:FindFirstChild("Model")
+                                            if Model then
+                                                local Mid = Model:FindFirstChild("Mid")
+                                                if Mid then
+                                                    local Prompt = Mid:FindFirstChild("EndGame")
+                                                    if Prompt then
+                                                        task.wait(1)
+                                                        for _, SandValue in pairs(FinalBasePlate:GetChildren()) do
+                                                            if SandValue.Name == "SandWall" and SandValue:IsA("BasePart") then
+                                                                SandValue.Size = Vector3.new(SandValue.Size.X, SandValue.Size.Y, 300)
+                                                            end
                                                         end
-                                                    end
-                                                    if Sminutes >= 10 and Sseconds >= 10 then
-                                                        if Prompt.Enabled then
-                                                            Goto(Vector3.new(-341.84686279296875, 2.999938726425171, -49044.8203125))
-                                                            fireproximityprompt(Prompt)
+                                                        if Sminutes >= 10 and Sseconds >= 10 then
+                                                            if Prompt.Enabled then
+                                                                Goto(Vector3.new(-341.84686279296875, 2.999938726425171, -49044.8203125))
+                                                                fireproximityprompt(Prompt)
+                                                            else
+                                                                Goto(Vector3.new(-319.56329345703125, 3.999938488006592, -49045.80078125))
+                                                            end
                                                         else
                                                             Goto(Vector3.new(-319.56329345703125, 3.999938488006592, -49045.80078125))
                                                         end
-                                                    else
-                                                        Goto(Vector3.new(-319.56329345703125, 3.999938488006592, -49045.80078125))
                                                     end
                                                 end
                                             end
@@ -267,12 +378,16 @@ do
                                 end
                             end
                         end
+                    else
+                        if not game:GetService("CoreGui"):FindFirstChild("CountdownUI") then
+                            CreateCountdownUI(game:GetService("CoreGui"), Sminutes, player.Name)
+                        else
+                            character:PivotTo(CFrame.new(Vector3.new(346, -69, -49455)))
+                        end
                     end
-                else
-                    character:PivotTo(CFrame.new(Vector3.new(346, -69, -49455)))
                 end
-            end
-        end)
+            end)
+        end
     end)
     AutoCollectBond:OnChanged(function()
         task.spawn(function()
@@ -348,99 +463,107 @@ do
         end)
     end)
     task.spawn(function()
-        RunService.Heartbeat:Connect(function()
-            for _, model in pairs(CollectionService:GetTagged("Enemy")) do
-                if model:IsA("Model") and model ~= character then
-                    local targetHumanoid = model:FindFirstChild("Humanoid")
-                    if targetHumanoid then
-                        if ESPMobs.Value and targetHumanoid.Health > 0 then
-                            if not model:FindFirstChild("HighlightMob") then 
+        if game.PlaceId ~= 116495829188952 then
+            RunService.Heartbeat:Connect(function()
+                for _, model in pairs(CollectionService:GetTagged("Enemy")) do
+                    if model:IsA("Model") and model ~= character then
+                        local targetHumanoid = model:FindFirstChild("Humanoid")
+                        if targetHumanoid then
+                            if ESPMobs.Value and targetHumanoid.Health > 0 then
+                                if not model:FindFirstChild("HighlightMob") then 
+                                    local highlight = Instance.new("Highlight")
+                                    highlight.Name = "HighlightMob"
+                                    highlight.FillColor = Color3.fromRGB(239, 151, 19)
+                                    highlight.OutlineColor = Color3.fromRGB(239, 151, 19)
+                                    highlight.OutlineTransparency = 0.5
+                                    highlight.Parent = model
+                                end
+                            else
+                                local highlight = model:FindFirstChild("HighlightMob")
+                                if highlight then
+                                    highlight:Destroy()
+                                end
+                            end
+                        end
+                    end
+                end
+                for _, model in pairs(CollectionService:GetTagged("Corpse")) do
+                    if ESPMobs.Value and model:FindFirstChild("HighlightMob") then
+                        local highlight = model:FindFirstChild("HighlightMob")
+                        highlight:Destroy()
+                    end
+                end
+            end)
+        end
+    end)
+    task.spawn(function()
+        if game.PlaceId ~= 116495829188952 then
+            RunService.Heartbeat:Connect(function()
+                if ESPItem.Value then
+                    for i, v in pairs(workspace.RuntimeItems:GetChildren()) do
+                        if v:IsA("Model") and not v:FindFirstChild("ESPUI") then
+                            CreateItemESP(v, v.Name, Color3.fromRGB(105, 218, 99))
+                        end
+                    end
+                else
+                    for i, v in pairs(workspace.RuntimeItems:GetChildren()) do
+                        if v:IsA("Model") and v:FindFirstChild("ESPUI") then
+                            local UI = v:FindFirstChild("ESPUI")
+                            if UI then
+                                UI:Destroy()
+                            end
+                        end
+                    end
+                end
+            end) 
+        end
+    end)
+    task.spawn(function()
+        if game.PlaceId ~= 116495829188952 then
+            RunService.Heartbeat:Connect(function()
+                if ESPBond.Value then
+                    for i, v in pairs(workspace.RuntimeItems:GetChildren()) do
+                        if v.Name == "Bond" and v:IsA("Model") and not v:FindFirstChild("ESPUI") then
+                            CreateItemESP(v, v.Name, Color3.fromRGB(218, 38, 38))
+                            if not v:FindFirstChild("HighlightBond") then
                                 local highlight = Instance.new("Highlight")
-                                highlight.Name = "HighlightMob"
-                                highlight.FillColor = Color3.fromRGB(239, 151, 19)
-                                highlight.OutlineColor = Color3.fromRGB(239, 151, 19)
+                                highlight.Name = "HighlightBond"
+                                highlight.OutlineColor = Color3.fromRGB(218, 38, 38)
                                 highlight.OutlineTransparency = 0.5
-                                highlight.Parent = model
+                                highlight.Parent = v
                             end
-                        else
-                            local highlight = model:FindFirstChild("HighlightMob")
-                            if highlight then
+                        end
+                    end
+                else
+                    for i, v in pairs(workspace.RuntimeItems:GetChildren()) do
+                        if v.Name == "Bond" and v:IsA("Model") and v:FindFirstChildOfClass("BasePart") and v:FindFirstChild("ESPUI") then
+                            local highlight = v:FindFirstChild("HighlightBond")
+                            local UI = v:FindFirstChild("ESPUI")
+                            if highlight and UI then
                                 highlight:Destroy()
+                                UI:Destroy()
                             end
                         end
                     end
                 end
-            end
-            for _, model in pairs(CollectionService:GetTagged("Corpse")) do
-                if ESPMobs.Value and model:FindFirstChild("HighlightMob") then
-                    local highlight = model:FindFirstChild("HighlightMob")
-                    highlight:Destroy()
-                end
-            end
-        end)
-    end)
-    task.spawn(function()
-        RunService.Heartbeat:Connect(function()
-            if ESPItem.Value then
-                for i, v in pairs(workspace.RuntimeItems:GetChildren()) do
-                    if v:IsA("Model") and not v:FindFirstChild("ESPUI") then
-                        CreateItemESP(v, v.Name, Color3.fromRGB(105, 218, 99))
-                    end
-                end
-            else
-                for i, v in pairs(workspace.RuntimeItems:GetChildren()) do
-                    if v:IsA("Model") and v:FindFirstChild("ESPUI") then
-                        local UI = v:FindFirstChild("ESPUI")
-                        if UI then
-                            UI:Destroy()
-                        end
-                    end
-                end
-            end
-        end)
-    end)
-    task.spawn(function()
-        RunService.Heartbeat:Connect(function()
-            if ESPBond.Value then
-                for i, v in pairs(workspace.RuntimeItems:GetChildren()) do
-                    if v.Name == "Bond" and v:IsA("Model") and not v:FindFirstChild("ESPUI") then
-                        CreateItemESP(v, v.Name, Color3.fromRGB(218, 38, 38))
-                        if not v:FindFirstChild("HighlightBond") then
-                            local highlight = Instance.new("Highlight")
-                            highlight.Name = "HighlightBond"
-                            highlight.OutlineColor = Color3.fromRGB(218, 38, 38)
-                            highlight.OutlineTransparency = 0.5
-                            highlight.Parent = v
-                        end
-                    end
-                end
-            else
-                for i, v in pairs(workspace.RuntimeItems:GetChildren()) do
-                    if v.Name == "Bond" and v:IsA("Model") and v:FindFirstChildOfClass("BasePart") and v:FindFirstChild("ESPUI") then
-                        local highlight = v:FindFirstChild("HighlightBond")
-                        local UI = v:FindFirstChild("ESPUI")
-                        if highlight and UI then
-                            highlight:Destroy()
-                            UI:Destroy()
-                        end
-                    end
-                end
-            end
-        end)
+            end)
+        end
     end)
     EnableThirdPerson:OnChanged(function()
         task.spawn(function()
-            while EnableThirdPerson.Value do
-                task.wait()
-                if player.CameraMode == Enum.CameraMode.LockFirstPerson then
-                    player.CameraMode = Enum.CameraMode.Classic
-                    player.CameraMaxZoomDistance = getgenv().Settings.FOVSlide
+            if game.PlaceId ~= 116495829188952 then
+                while EnableThirdPerson.Value do
+                    task.wait()
+                    if player.CameraMode == Enum.CameraMode.LockFirstPerson then
+                        player.CameraMode = Enum.CameraMode.Classic
+                        player.CameraMaxZoomDistance = getgenv().Settings.FOVSlide
+                    end
+                end            
+                task.wait(.1)
+                if not EnableThirdPerson.Value then
+                    player.CameraMode = Enum.CameraMode.LockFirstPerson
+                    player.CameraMaxZoomDistance = 130
                 end
-            end            
-            task.wait(.1)
-            if not EnableThirdPerson.Value then
-                player.CameraMode = Enum.CameraMode.LockFirstPerson
-                player.CameraMaxZoomDistance = 130
             end
         end)
     end)
@@ -468,21 +591,31 @@ do
         end)
     end)
     task.spawn(function()
-        game:GetService("RunService").Stepped:Connect(function()
-            if Noclip.Value and character then
-                for _, part in pairs(player.Character:GetDescendants()) do
-                    if part:IsA("BasePart") and part.CanCollide then
-                        part.CanCollide = false
+        if game.PlaceId ~= 116495829188952 then
+            game:GetService("RunService").Stepped:Connect(function()
+                if Noclip.Value and character then
+                    for _, part in pairs(player.Character:GetDescendants()) do
+                        if part:IsA("BasePart") and part.CanCollide then
+                            part.CanCollide = false
+                        end
+                    end
+                else
+                    for _, part in pairs(character:GetDescendants()) do
+                        if part:IsA("BasePart") then
+                            part.CanCollide = true
+                        end
                     end
                 end
-            else
-                for _, part in pairs(character:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        part.CanCollide = true
-                    end
-                end
-            end
-        end)
+            end)
+        end
+    end)
+
+    task.spawn(function()
+        while true do
+            getgenv().Settings.Train_Distance = getgenv().Settings.Train_Distance + 1
+            getgenv().Settings.Train_Fuel = getgenv().Settings.Train_Fuel + 1
+            task.wait(1)
+        end
     end)
     
     
@@ -580,6 +713,8 @@ Fluent:Notify({
     Duration = 5
 })
 
+-- InterfaceManager:SetLibrary(Fluent)
+-- InterfaceManager:BuildInterfaceSection(Tabs.pageAimbot)
 Window:SelectTab(1)
 
 
