@@ -2887,10 +2887,12 @@ local aa = {
         function aj.New(c, d)
             assert(d.Title, 'Paragraph - Missing Title')
             if d.Content and d.Content ~= '' then
-                while true do
-                    d.Content = d.Content
-                    task.wait(0.5)
-                end
+                task.spawn(function()
+                    while true do
+                        d.Content = d.Content
+                        task.wait(0.5)
+                    end
+                end)
             else
                 d.Content = ''
             end
