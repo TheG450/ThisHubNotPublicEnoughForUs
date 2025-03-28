@@ -47,7 +47,7 @@ local Window = Fluent:CreateWindow({
 local Tabs = {
     --[[ TABS --]]
     pageMain = Window:AddTab({ Title = "|| Main", Icon = "home" }),
-    pageAimbot = Window:AddTab({ Title = "|| Aimbot & AimAssist", Icon = "crosshair" }),
+    pageAimbot = Window:AddTab({ Title = "|| Hitbox & AimAssist", Icon = "crosshair" }),
     pageESP = Window:AddTab({ Title = "|| ESP", Icon = "eye" }),
     pageMisc = Window:AddTab({ Title = "|| Misc", Icon = "component" }),
 }
