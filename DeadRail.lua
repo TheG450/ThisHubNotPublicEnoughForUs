@@ -14,7 +14,9 @@ getgenv().Settings = {
     FastReload = nil,
     NoSpread = nil,
     --[[ AIMBOT ]]
-    SelectTarget = nil,
+    HitboxExpanderSlide = nil,
+    Hitbox = nil,
+    AimbotSlide = nil,
     Aimbot = nil,
     --[[ ESP ]]
     ESPMobs = nil,
@@ -45,7 +47,7 @@ local Window = Fluent:CreateWindow({
 local Tabs = {
     --[[ TABS --]]
     pageMain = Window:AddTab({ Title = "|| Main", Icon = "home" }),
-    --pageAimbot = Window:AddTab({ Title = "|| Aimbot", Icon = "crosshair" }),
+    pageAimbot = Window:AddTab({ Title = "|| Aimbot & AimAssist", Icon = "crosshair" }),
     pageESP = Window:AddTab({ Title = "|| ESP", Icon = "eye" }),
     pageMisc = Window:AddTab({ Title = "|| Misc", Icon = "component" }),
 }
@@ -62,6 +64,7 @@ do
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoidrootpart = character:FindFirstChild("HumanoidRootPart") or character:WaitForChild("HumanoidRootPart", 5)
     local humanoid = character:FindFirstChild("Humanoid") or character:WaitForChild("Humanoid", 5)
+    local camera = workspace.CurrentCamera
 
     player.CharacterAdded:Connect(function(newcharacter)
         character = newcharacter
@@ -85,8 +88,8 @@ do
             end
         end
     })
-    local AutomaticTitle = Tabs.pageMain:AddSection("Automatic")
-    local AutoWin = Tabs.pageMain:AddToggle("AutoWin", {Title = "Auto Win", Default = getgenv().Settings.AutoWin or false })
+    -- local AutomaticTitle = Tabs.pageMain:AddSection("Automatic")
+    -- local AutoWin = Tabs.pageMain:AddToggle("AutoWin", {Title = "Auto Win", Default = getgenv().Settings.AutoWin or false })
     local MainTitle = Tabs.pageMain:AddSection("Main")
     local AutoCollectBond = Tabs.pageMain:AddToggle("AutoCollectBond", {Title = "Auto Collect Bond (Be Near)", Default = getgenv().Settings.AutoCollectBond or false })
     local AutoCollectCashBag = Tabs.pageMain:AddToggle("AutoCollectCashBag", {Title = "Auto Collect CashBag", Default = getgenv().Settings.AutoCollectCashBag or false })
@@ -112,19 +115,34 @@ do
     local NoSpread = Tabs.pageMain:AddToggle("NoSpread", {Title = "No Spread", Default = getgenv().Settings.NoSpread or false })
 
     --[[ AIMBOT ]]--------------------------------------------------------
-    -- local SelectTarget = Tabs.pageAimbot:AddDropdown("SelectTarget", {
-    --     Title = "Select Target",
-    --     Values = {"Head", "HumanoidRootPart"},
-    --     Multi = false,
-    --     Default = getgenv().Settings.SelectTarget or "Head",
-    --     Callback = function(Value)
-    --         getgenv().Settings.SelectTarget = Value
-    --     end
-    -- })
-    -- SelectTarget:OnChanged(function(Value)
-    --     getgenv().Settings.SelectTarget = Value
-    -- end)
-    -- local Aimbot = Tabs.pageAimbot:AddToggle("Aimbot", {Title = "Aimbot", Default = getgenv().Settings.Aimbot or false })
+    local HitboxExpanderSlide = Tabs.pageAimbot:AddSlider("HitboxExpanderSlide", {
+        Title = "Hitbox Size ",
+        Default = getgenv().Settings.HitboxExpanderSlide or 10,
+        Min = 1,
+        Max = 50,
+        Rounding = 0,
+        Callback = function(Value)
+            getgenv().Settings.HitboxExpanderSlide = Value
+        end
+    })
+    HitboxExpanderSlide:OnChanged(function(Value)
+        getgenv().Settings.HitboxExpanderSlide = Value
+    end)
+    local Hitbox = Tabs.pageAimbot:AddToggle("Hitbox", {Title = "Hitbox", Default = getgenv().Settings.Hitbox or false })
+    local AimbotSlide = Tabs.pageAimbot:AddSlider("AimbotSlide", {
+        Title = "Aimbot Distance",
+        Default = getgenv().Settings.AimbotSlide or 100,
+        Min = 50,
+        Max = 300,
+        Rounding = 0,
+        Callback = function(Value)
+            getgenv().Settings.AimbotSlide = Value
+        end
+    })
+    AimbotSlide:OnChanged(function(Value)
+        getgenv().Settings.AimbotSlide = Value
+    end)
+    local Aimbot = Tabs.pageAimbot:AddToggle("Aimbot", {Title = "Aimbot", Default = getgenv().Settings.Aimbot or false })
 
     --[[ ESP ]]--------------------------------------------------------
     local ESPMobs = Tabs.pageESP:AddToggle("ESPMobs", {Title = "[ESP] Mobs", Default = getgenv().Settings.ESPMobs or false })
@@ -300,95 +318,95 @@ do
     end
 
     --[[ SCRIPTS ]]--------------------------------------------------------
-    task.spawn(function()
-        if game.PlaceId ~= 116495829188952 then
-            ProximityPromptService.PromptShown:Connect(function(prompt)
-                if AutoWin.Value then
-                    prompt.HoldDuration = 0
-                end
-            end)    
+    -- task.spawn(function()
+    --     if game.PlaceId ~= 116495829188952 then
+    --         ProximityPromptService.PromptShown:Connect(function(prompt)
+    --             if AutoWin.Value then
+    --                 prompt.HoldDuration = 0
+    --             end
+    --         end)    
         
-            local function Goto(TargetPosition)
-                humanoid:MoveTo(TargetPosition)
-                humanoid.MoveToFinished:Wait()
-            end
+    --         local function Goto(TargetPosition)
+    --             humanoid:MoveTo(TargetPosition)
+    --             humanoid.MoveToFinished:Wait()
+    --         end
     
-            RunService.Stepped:Connect(function()
-                if character and AutoWin.Value then
-                    for _, part in pairs(player.Character:GetDescendants()) do
-                        if part:IsA("BasePart") and part.CanCollide then
-                            part.CanCollide = false
-                        end
-                    end
-                else
-                    for _, part in pairs(player.Character:GetDescendants()) do
-                        if part:IsA("BasePart") then
-                            part.CanCollide = true
-                        end
-                    end
-                end
-            end)
+    --         RunService.Stepped:Connect(function()
+    --             if character and AutoWin.Value then
+    --                 for _, part in pairs(player.Character:GetDescendants()) do
+    --                     if part:IsA("BasePart") and part.CanCollide then
+    --                         part.CanCollide = false
+    --                     end
+    --                 end
+    --             else
+    --                 for _, part in pairs(player.Character:GetDescendants()) do
+    --                     if part:IsA("BasePart") then
+    --                         part.CanCollide = true
+    --                     end
+    --                 end
+    --             end
+    --         end)
         
-            RunService.Heartbeat:Connect(function()
-                local seconds = math.floor(workspace.DistributedGameTime)
-                local minutes = math.floor(workspace.DistributedGameTime / 60)
-                local hours = math.floor(workspace.DistributedGameTime / 60 / 60)
-                local Sseconds = seconds - (minutes * 60)
-                local Sminutes = minutes - (hours * 60)
-                local Baseplate = workspace:FindFirstChild("Baseplates")
-                if seconds > 20 and AutoWin.Value then
-                    if Baseplate:FindFirstChild("FinalBasePlate") then
-                        local FinalBasePlate = Baseplate:FindFirstChild("FinalBasePlate")
-                        if FinalBasePlate then
-                            local OutlawBase = FinalBasePlate:FindFirstChild("OutlawBase")
-                            if OutlawBase then
-                                local Bridge = OutlawBase:FindFirstChild("Bridge")
-                                if Bridge then
-                                    local BridgeControl = Bridge:FindFirstChild("BridgeControl")
-                                    if BridgeControl then
-                                        local Crank = BridgeControl:FindFirstChild("Crank")
-                                        if Crank then
-                                            local Model = Crank:FindFirstChild("Model")
-                                            if Model then
-                                                local Mid = Model:FindFirstChild("Mid")
-                                                if Mid then
-                                                    local Prompt = Mid:FindFirstChild("EndGame")
-                                                    if Prompt then
-                                                        task.wait(1)
-                                                        for _, SandValue in pairs(FinalBasePlate:GetChildren()) do
-                                                            if SandValue.Name == "SandWall" and SandValue:IsA("BasePart") then
-                                                                SandValue.Size = Vector3.new(SandValue.Size.X, SandValue.Size.Y, 300)
-                                                            end
-                                                        end
-                                                        if Sminutes >= 10 and Sseconds >= 10 then
-                                                            if Prompt.Enabled then
-                                                                Goto(Vector3.new(-341.84686279296875, 2.999938726425171, -49044.8203125))
-                                                                fireproximityprompt(Prompt)
-                                                            else
-                                                                Goto(Vector3.new(-319.56329345703125, 3.999938488006592, -49045.80078125))
-                                                            end
-                                                        else
-                                                            Goto(Vector3.new(-319.56329345703125, 3.999938488006592, -49045.80078125))
-                                                        end
-                                                    end
-                                                end
-                                            end
-                                        end
-                                    end
-                                end
-                            end
-                        end
-                    else
-                        if not game:GetService("CoreGui"):FindFirstChild("CountdownUI") then
-                            CreateCountdownUI(game:GetService("CoreGui"), Sminutes, player.Name)
-                        else
-                            character:PivotTo(CFrame.new(Vector3.new(346, -69, -49455)))
-                        end
-                    end
-                end
-            end)
-        end
-    end)
+    --         RunService.Heartbeat:Connect(function()
+    --             local seconds = math.floor(workspace.DistributedGameTime)
+    --             local minutes = math.floor(workspace.DistributedGameTime / 60)
+    --             local hours = math.floor(workspace.DistributedGameTime / 60 / 60)
+    --             local Sseconds = seconds - (minutes * 60)
+    --             local Sminutes = minutes - (hours * 60)
+    --             local Baseplate = workspace:FindFirstChild("Baseplates")
+    --             if seconds > 20 and AutoWin.Value then
+    --                 if Baseplate:FindFirstChild("FinalBasePlate") then
+    --                     local FinalBasePlate = Baseplate:FindFirstChild("FinalBasePlate")
+    --                     if FinalBasePlate then
+    --                         local OutlawBase = FinalBasePlate:FindFirstChild("OutlawBase")
+    --                         if OutlawBase then
+    --                             local Bridge = OutlawBase:FindFirstChild("Bridge")
+    --                             if Bridge then
+    --                                 local BridgeControl = Bridge:FindFirstChild("BridgeControl")
+    --                                 if BridgeControl then
+    --                                     local Crank = BridgeControl:FindFirstChild("Crank")
+    --                                     if Crank then
+    --                                         local Model = Crank:FindFirstChild("Model")
+    --                                         if Model then
+    --                                             local Mid = Model:FindFirstChild("Mid")
+    --                                             if Mid then
+    --                                                 local Prompt = Mid:FindFirstChild("EndGame")
+    --                                                 if Prompt then
+    --                                                     task.wait(1)
+    --                                                     for _, SandValue in pairs(FinalBasePlate:GetChildren()) do
+    --                                                         if SandValue.Name == "SandWall" and SandValue:IsA("BasePart") then
+    --                                                             SandValue.Size = Vector3.new(SandValue.Size.X, SandValue.Size.Y, 300)
+    --                                                         end
+    --                                                     end
+    --                                                     if Sminutes >= 10 and Sseconds >= 10 then
+    --                                                         if Prompt.Enabled then
+    --                                                             Goto(Vector3.new(-341.84686279296875, 2.999938726425171, -49044.8203125))
+    --                                                             fireproximityprompt(Prompt)
+    --                                                         else
+    --                                                             Goto(Vector3.new(-319.56329345703125, 3.999938488006592, -49045.80078125))
+    --                                                         end
+    --                                                     else
+    --                                                         Goto(Vector3.new(-319.56329345703125, 3.999938488006592, -49045.80078125))
+    --                                                     end
+    --                                                 end
+    --                                             end
+    --                                         end
+    --                                     end
+    --                                 end
+    --                             end
+    --                         end
+    --                     end
+    --                 else
+    --                     if not game:GetService("CoreGui"):FindFirstChild("CountdownUI") then
+    --                         CreateCountdownUI(game:GetService("CoreGui"), Sminutes, player.Name)
+    --                     else
+    --                         character:PivotTo(CFrame.new(Vector3.new(346, -69, -49455)))
+    --                     end
+    --                 end
+    --             end
+    --         end)
+    --     end
+    -- end)
     AutoCollectBond:OnChanged(function()
         task.spawn(function()
             while AutoCollectBond.Value do
@@ -459,6 +477,59 @@ do
                         end
                     end
                 end
+            end
+        end)
+    end)
+    Hitbox:OnChanged(function()
+        task.spawn(function()
+            while Hitbox.Value do
+                task.wait()
+                for _, model in pairs(CollectionService:GetTagged("Enemy")) do
+                    if model:IsA("Model") and model:FindFirstChild("Humanoid") then
+                        local modelHumanoid = model:FindFirstChild("Humanoid")
+                        local modelHead = model:FindFirstChild("Head")
+                        if modelHumanoid and modelHead then
+                            if modelHumanoid.Health > 0 then
+                                modelHead.Size = Vector3.new(getgenv().Settings.HitboxExpanderSlide, getgenv().Settings.HitboxExpanderSlide, getgenv().Settings.HitboxExpanderSlide)
+                                modelHead.Transparency = 0.5
+                            end
+                        end
+                    end
+                end
+            end
+        end)
+    end)
+    Aimbot:OnChanged(function()
+        task.spawn(function()
+            while Aimbot.Value do
+                task.wait()
+                for _, model in pairs(CollectionService:GetTagged("Enemy")) do
+                    if model:IsA("Model") and model:FindFirstChild("Humanoid") then
+                        local modelHumanoidRootPart = model:FindFirstChild("HumanoidRootPart")
+                        local modelHead = model:FindFirstChild("Head")
+                        if modelHumanoidRootPart and modelHead then
+                            local Distance = (modelHumanoidRootPart.Position - humanoidrootpart.Position).Magnitude
+                            if Distance <= 100 then
+                                player.CameraMode = Enum.CameraMode.Classic
+                                camera.CameraSubject = modelHead
+                                humanoid.CameraMinZoomDistance = 15
+                                camera.CameraType = Enum.CameraType.Orbital
+                            else
+                                player.CameraMode = Enum.CameraMode.LockFirstPerson
+                                camera.CameraSubject = humanoid
+                                humanoid.CameraMinZoomDistance = 0.5
+                                camera.CameraType = Enum.CameraType.Custom
+                            end
+                        end
+                    end
+                end
+            end
+            task.wait(.1)
+            if not Aimbot.Value then
+                player.CameraMode = Enum.CameraMode.LockFirstPerson
+                camera.CameraSubject = humanoid
+                humanoid.CameraMinZoomDistance = 0.5
+                camera.CameraType = Enum.CameraType.Custom
             end
         end)
     end)
