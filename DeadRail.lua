@@ -88,8 +88,8 @@ do
             end
         end
     })
-    -- local AutomaticTitle = Tabs.pageMain:AddSection("Automatic")
-    -- local AutoWin = Tabs.pageMain:AddToggle("AutoWin", {Title = "Auto Win", Default = getgenv().Settings.AutoWin or false })
+    local AutomaticTitle = Tabs.pageMain:AddSection("Automatic")
+    local AutoWin = Tabs.pageMain:AddToggle("AutoWin", {Title = "Auto Win (Fixing)", Default = getgenv().Settings.AutoWin or false })
     local MainTitle = Tabs.pageMain:AddSection("Main")
     local AutoCollectBond = Tabs.pageMain:AddToggle("AutoCollectBond", {Title = "Auto Collect Bond (Be Near)", Default = getgenv().Settings.AutoCollectBond or false })
     local AutoCollectCashBag = Tabs.pageMain:AddToggle("AutoCollectCashBag", {Title = "Auto Collect CashBag", Default = getgenv().Settings.AutoCollectCashBag or false })
@@ -407,6 +407,19 @@ do
     --         end)
     --     end
     -- end)
+    AutoWin:OnChanged(function()
+        task.spawn(function()
+            if AutoWin.Value then
+                Fluent:Notify({
+                    Title = "Fearise Hub",
+                    Content = "Wait For Fixing",
+                    Duration = 5
+                })
+                task.wait(.1)
+                AutoWin:SetValue(false)
+            end
+        end)
+    end)
     AutoCollectBond:OnChanged(function()
         task.spawn(function()
             while AutoCollectBond.Value do
