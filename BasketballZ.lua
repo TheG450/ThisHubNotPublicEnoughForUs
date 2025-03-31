@@ -1,5 +1,5 @@
 --===[ SERVICES & DEPENDENCIES ]===
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/TheG450/ThisHubNotPublicEnoughForUs/refs/heads/main/UpsideRemakeBeta_UI.lua"))()
 local rs = game:GetService("RunService")
 local w = game:GetService("Workspace")
 local plrs = game:GetService("Players")
@@ -167,7 +167,7 @@ ui = Fluent:CreateWindow({
 	TabWidth = 160,
 	Size = UDim2.fromOffset(500, 350),
 	Acrylic = false,
-	Theme = "Dark",
+	Theme = "FeariseHub",
 	MinimizeKey = Enum.KeyCode.RightControl
 })
 
