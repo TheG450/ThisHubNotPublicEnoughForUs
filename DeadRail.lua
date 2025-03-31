@@ -27,6 +27,7 @@ getgenv().Settings = {
     EnableThirdPerson = nil,
     Noclip = nil,
     FullBright = nil,
+    StandKeybind = nil,
 
 }
 
@@ -58,6 +59,7 @@ do
     local TweenService = game:GetService("TweenService")
     local ProximityPromptService = game:GetService("ProximityPromptService")
     local CollectionService = game:GetService("CollectionService")
+    local userInputService = game:GetService("UserInputService")
     local Lighting = game:GetService("Lighting")
     local Players = game:GetService("Players")
     local player = Players.LocalPlayer
@@ -119,7 +121,7 @@ do
         Title = "Hitbox Size ",
         Default = getgenv().Settings.HitboxExpanderSlide or 10,
         Min = 1,
-        Max = 50,
+        Max = 30,
         Rounding = 0,
         Callback = function(Value)
             getgenv().Settings.HitboxExpanderSlide = Value
@@ -168,6 +170,21 @@ do
     local PlayerTitle = Tabs.pageMisc:AddSection("Player")
     local Noclip = Tabs.pageMisc:AddToggle("Noclip", {Title = "Noclip", Default = getgenv().Settings.Noclip or false })
     local FullBright = Tabs.pageMisc:AddToggle("FullBright", {Title = "Full Bright", Default = getgenv().Settings.FullBright or false })
+    local StandTitle = Tabs.pageMisc:AddSection("Stand")
+    local StandKeybind = Tabs.pageMisc:AddKeybind("StandKeybind", {
+        Title = "Summon Stand Keybind",
+        Mode = "Toggle",
+        Default = "T",
+        Callback = function(Value)
+            getgenv().Settings.StandKeybind = Value
+        end,
+        ChangedCallback = function(New)
+            getgenv().Settings.StandKeybind = New
+        end
+    })
+    StandKeybind:OnChanged(function()
+        getgenv().Settings.StandKeybind = StandKeybind.Value
+    end)
     
     --[[ FUNCTIONS ]]--------------------------------------------------------
     function CreateItemESP(parent, name, Color)
@@ -525,12 +542,12 @@ do
                             if Distance <= 100 then
                                 player.CameraMode = Enum.CameraMode.Classic
                                 camera.CameraSubject = modelHead
-                                humanoid.CameraMinZoomDistance = 15
+                                player.CameraMinZoomDistance = 15
                                 camera.CameraType = Enum.CameraType.Orbital
                             else
                                 player.CameraMode = Enum.CameraMode.LockFirstPerson
                                 camera.CameraSubject = humanoid
-                                humanoid.CameraMinZoomDistance = 0.5
+                                player.CameraMinZoomDistance = 0.5
                                 camera.CameraType = Enum.CameraType.Custom
                             end
                         end
@@ -538,11 +555,13 @@ do
                 end
             end
             task.wait(.1)
-            if not Aimbot.Value then
-                player.CameraMode = Enum.CameraMode.LockFirstPerson
-                camera.CameraSubject = humanoid
-                humanoid.CameraMinZoomDistance = 0.5
-                camera.CameraType = Enum.CameraType.Custom
+            if not Aimbot.Value and game.PlaceId ~= 116495829188952 then
+                if player.CameraMode ~= Enum.CameraMode.LockFirstPerson then
+                    player.CameraMode = Enum.CameraMode.LockFirstPerson
+                    camera.CameraSubject = humanoid
+                    player.CameraMinZoomDistance = 0.5
+                    camera.CameraType = Enum.CameraType.Custom
+                end
             end
         end)
     end)
@@ -700,6 +719,78 @@ do
             getgenv().Settings.Train_Fuel = getgenv().Settings.Train_Fuel + 1
             task.wait(1)
         end
+    end)
+
+    task.spawn(function()
+        local Summoncharacter = player.Character or player.CharacterAdded:Wait()
+        local Summonhumanoid = Summoncharacter:FindFirstChildOfClass("Humanoid") or Summoncharacter:WaitForChild("Humanoid", 9e99)
+        local SummonrootPart = Summoncharacter:FindFirstChild("HumanoidRootPart") or Summoncharacter:WaitForChild("HumanoidRootPart", 9e99)
+        local workspace = game.Workspace
+
+        local controllingAvatar = false
+
+        local function enableAvatarControl()
+            if controllingAvatar then return end
+            controllingAvatar = true
+
+            SummonrootPart.Anchored = false
+
+            local avatar = workspace:FindFirstChild("ControlledAvatar")
+
+            if avatar then
+                local avatarHumanoid = avatar:FindFirstChildOfClass("Humanoid")
+                if avatarHumanoid then
+                    workspace.CurrentCamera.CameraSubject = avatarHumanoid
+                    player.Character = avatar
+                end
+            else
+                avatar = Instance.new("Model")
+                avatar.Name = "ControlledAvatar"
+                avatar.Parent = workspace
+
+                local avatarRoot = Instance.new("Part")
+                avatarRoot.Name = "HumanoidRootPart"
+                avatarRoot.Size = Vector3.new(2, 6, 1)
+                avatarRoot.CFrame = SummonrootPart.CFrame * CFrame.new(0, 0, 3)
+                avatarRoot.Anchored = false
+                avatarRoot.CanCollide = true
+                avatarRoot.Parent = avatar
+
+                local avatarHumanoid = Instance.new("Humanoid")
+                avatarHumanoid.Parent = avatar
+
+                -- กำหนดให้ผู้เล่นควบคุมอวาตาร์ใหม่
+                workspace.CurrentCamera.CameraSubject = avatarHumanoid
+                player.Character = avatar
+            end
+        end
+
+        local function disableAvatarControl()
+            if not controllingAvatar then return end
+            controllingAvatar = false
+
+            SummonrootPart.Anchored = false
+
+            local avatar = workspace:FindFirstChild("ControlledAvatar")
+            if avatar then
+                avatar:Destroy()
+            end
+
+            workspace.CurrentCamera.CameraSubject = Summonhumanoid
+            player.Character = Summoncharacter
+        end
+
+        userInputService.InputBegan:Connect(function(input, gameProcessed)
+            if gameProcessed then return end
+
+            if input.KeyCode == Enum.KeyCode[StandKeybind.Value] then
+                if controllingAvatar then
+                    disableAvatarControl()
+                else
+                    enableAvatarControl()
+                end
+            end
+        end)
     end)
     
     
