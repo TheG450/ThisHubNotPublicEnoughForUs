@@ -738,75 +738,77 @@ do
     end)
 
     task.spawn(function()
-        local Summoncharacter = player.Character or player.CharacterAdded:Wait()
-        local Summonhumanoid = Summoncharacter:FindFirstChildOfClass("Humanoid") or Summoncharacter:WaitForChild("Humanoid", 9e99)
-        local SummonrootPart = Summoncharacter:FindFirstChild("HumanoidRootPart") or Summoncharacter:WaitForChild("HumanoidRootPart", 9e99)
-        local workspace = game.Workspace
-
-        local controllingAvatar = false
-
-        local function enableAvatarControl()
-            if controllingAvatar then return end
-            controllingAvatar = true
-
-            SummonrootPart.Anchored = false
-
-            local avatar = workspace:FindFirstChild("ControlledAvatar")
-
-            if avatar then
-                local avatarHumanoid = avatar:FindFirstChildOfClass("Humanoid")
-                if avatarHumanoid then
+        if game.PlaceId ~= 116495829188952 then
+            local Summoncharacter = player.Character or player.CharacterAdded:Wait()
+            local Summonhumanoid = Summoncharacter:FindFirstChildOfClass("Humanoid") or Summoncharacter:WaitForChild("Humanoid", 9e99)
+            local SummonrootPart = Summoncharacter:FindFirstChild("HumanoidRootPart") or Summoncharacter:WaitForChild("HumanoidRootPart", 9e99)
+            local workspace = game.Workspace
+    
+            local controllingAvatar = false
+    
+            local function enableAvatarControl()
+                if controllingAvatar then return end
+                controllingAvatar = true
+    
+                SummonrootPart.Anchored = false
+    
+                local avatar = workspace:FindFirstChild("ControlledAvatar")
+    
+                if avatar then
+                    local avatarHumanoid = avatar:FindFirstChildOfClass("Humanoid")
+                    if avatarHumanoid then
+                        workspace.CurrentCamera.CameraSubject = avatarHumanoid
+                        player.Character = avatar
+                    end
+                else
+                    avatar = Instance.new("Model")
+                    avatar.Name = "ControlledAvatar"
+                    avatar.Parent = workspace
+    
+                    local avatarRoot = Instance.new("Part")
+                    avatarRoot.Name = "HumanoidRootPart"
+                    avatarRoot.Size = Vector3.new(2, 6, 1)
+                    avatarRoot.CFrame = SummonrootPart.CFrame * CFrame.new(0, 0, 3)
+                    avatarRoot.Anchored = false
+                    avatarRoot.CanCollide = true
+                    avatarRoot.Parent = avatar
+    
+                    local avatarHumanoid = Instance.new("Humanoid")
+                    avatarHumanoid.Parent = avatar
+    
+                    -- กำหนดให้ผู้เล่นควบคุมอวาตาร์ใหม่
                     workspace.CurrentCamera.CameraSubject = avatarHumanoid
                     player.Character = avatar
                 end
-            else
-                avatar = Instance.new("Model")
-                avatar.Name = "ControlledAvatar"
-                avatar.Parent = workspace
-
-                local avatarRoot = Instance.new("Part")
-                avatarRoot.Name = "HumanoidRootPart"
-                avatarRoot.Size = Vector3.new(2, 6, 1)
-                avatarRoot.CFrame = SummonrootPart.CFrame * CFrame.new(0, 0, 3)
-                avatarRoot.Anchored = false
-                avatarRoot.CanCollide = true
-                avatarRoot.Parent = avatar
-
-                local avatarHumanoid = Instance.new("Humanoid")
-                avatarHumanoid.Parent = avatar
-
-                -- กำหนดให้ผู้เล่นควบคุมอวาตาร์ใหม่
-                workspace.CurrentCamera.CameraSubject = avatarHumanoid
-                player.Character = avatar
             end
-        end
-
-        local function disableAvatarControl()
-            if not controllingAvatar then return end
-            controllingAvatar = false
-
-            SummonrootPart.Anchored = false
-
-            local avatar = workspace:FindFirstChild("ControlledAvatar")
-            if avatar then
-                avatar:Destroy()
-            end
-
-            workspace.CurrentCamera.CameraSubject = Summonhumanoid
-            player.Character = Summoncharacter
-        end
-
-        userInputService.InputBegan:Connect(function(input, gameProcessed)
-            if gameProcessed then return end
-
-            if input.KeyCode == Enum.KeyCode[StandKeybind.Value] then
-                if controllingAvatar then
-                    disableAvatarControl()
-                else
-                    enableAvatarControl()
+    
+            local function disableAvatarControl()
+                if not controllingAvatar then return end
+                controllingAvatar = false
+    
+                SummonrootPart.Anchored = false
+    
+                local avatar = workspace:FindFirstChild("ControlledAvatar")
+                if avatar then
+                    avatar:Destroy()
                 end
+    
+                workspace.CurrentCamera.CameraSubject = Summonhumanoid
+                player.Character = Summoncharacter
             end
-        end)
+    
+            userInputService.InputBegan:Connect(function(input, gameProcessed)
+                if gameProcessed then return end
+    
+                if input.KeyCode == Enum.KeyCode[StandKeybind.Value] then
+                    if controllingAvatar then
+                        disableAvatarControl()
+                    else
+                        enableAvatarControl()
+                    end
+                end
+            end) 
+        end
     end)
     StandToggleWalkSpeed:OnChanged(function()
         task.spawn(function()
