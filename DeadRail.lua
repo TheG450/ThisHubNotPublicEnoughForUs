@@ -28,6 +28,8 @@ getgenv().Settings = {
     Noclip = nil,
     FullBright = nil,
     StandKeybind = nil,
+    StandWalkSpeed = nil,
+    StandToggleWalkSpeed = nil,
 
 }
 
@@ -185,6 +187,20 @@ do
     StandKeybind:OnChanged(function()
         getgenv().Settings.StandKeybind = StandKeybind.Value
     end)
+    local StandWalkSpeed = Tabs.pageMisc:AddSlider("StandWalkSpeed", {
+        Title = "Stand WalkSpeed ",
+        Default = getgenv().Settings.StandWalkSpeed or 16,
+        Min = 16,
+        Max = 100,
+        Rounding = 0,
+        Callback = function(Value)
+            getgenv().Settings.StandWalkSpeed = Value
+        end
+    })
+    StandWalkSpeed:OnChanged(function(Value)
+        getgenv().Settings.StandWalkSpeed = Value
+    end)
+    local StandToggleWalkSpeed = Tabs.pageMisc:AddToggle("StandToggleWalkSpeed", {Title = "Walk Speed", Default = getgenv().Settings.StandToggleWalkSpeed or false })
     
     --[[ FUNCTIONS ]]--------------------------------------------------------
     function CreateItemESP(parent, name, Color)
@@ -788,6 +804,20 @@ do
                     disableAvatarControl()
                 else
                     enableAvatarControl()
+                end
+            end
+        end)
+    end)
+    StandToggleWalkSpeed:OnChanged(function()
+        task.spawn(function()
+            while StandToggleWalkSpeed.Value do
+                task.wait()
+                local CameraMonitor = workspace:FindFirstChild("ControlledAvatar")
+                if CameraMonitor then
+                    local CameraMonitorHumanoid = CameraMonitor:FindFirstChildOfClass("Humanoid")
+                    if CameraMonitorHumanoid then
+                        CameraMonitorHumanoid.WalkSpeed = getgenv().Settings.StandWalkSpeed
+                    end
                 end
             end
         end)
