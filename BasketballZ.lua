@@ -5,6 +5,7 @@ local cs = game:GetService("CollectionService")
 local w = game:GetService("Workspace")
 local plrs = game:GetService("Players")
 local lp = plrs.LocalPlayer
+local pgui = lp:FindFirstChild("PlayerGui") or lp:WaitForChild("PlayerGui", 9e99)
 local character = lp.Character or lp.CharacterAdded:Wait()
 local humanoidrootpart = character:FindFirstChild("HumanoidRootPart") or character:WaitForChild("HumanoidRootPart", 9e99)
 local rep = game:GetService("ReplicatedStorage")
@@ -30,6 +31,8 @@ getgenv().Settings = getgenv().Settings or {
 	--[[ SPINS ]]----------
 	SelectedStyles = {},
 	StyleSpinToggle = false,
+	SelectedZones = {},
+	ZoneSpinToggle = false,
 }
 
 function SaveSetting() end
@@ -197,6 +200,22 @@ local function GetStyleList()
 end
 GetStyleList()
 
+local ZoneList = {}
+local function GetZoneList()
+    local Assets = rep:FindFirstChild("Assets")
+    if Assets then
+        local Zones = Assets:FindFirstChild("Zones")
+        if Zones then
+            for _, v in ipairs(Zones:GetChildren()) do
+                if v:IsA("Folder") then
+                    table.insert(ZoneList, v.Name)
+                end
+            end
+        end
+    end
+end
+GetZoneList()
+
 w.ChildAdded:Connect(function(c)
 	if c:IsA("BasePart") and c.Name == "Basketball" then
 		task.wait()
@@ -326,6 +345,24 @@ Toggles.StyleSpinToggle = SpinTab:AddToggle("StyleSpinToggle", {
 	Title = "Enable Style Spin",
 	Default = getgenv().Settings.StyleSpinToggle
 })
+SpinTab:AddSection("Zones Spin")
+Dropdown.ZoneSpin = SpinTab:AddDropdown("ZonesDropdown", {
+	Title = "Zones List",
+	Values = ZoneList,
+	Multi = true,
+	Default = getgenv().Settings.SelectedZones or {},
+})
+Dropdown.ZoneSpin:OnChanged(function(Value)
+	local Values = {}
+	for Value, State in next, Value do
+		table.insert(Values, Value)
+	end
+	getgenv().Settings.SelectedZones = Values
+end)
+Toggles.ZoneSpinToggle = SpinTab:AddToggle("ZoneSpinToggle", {
+	Title = "Enable Zone Spin",
+	Default = getgenv().Settings.ZoneSpinToggle
+})
 
 --===[ TOGGLE HANDLERS ]===
 
@@ -371,34 +408,115 @@ Toggles.StyleSpinToggle:OnChanged(function()
 		SaveSetting()
 		while getgenv().Settings.StyleSpinToggle do
 			task.wait()
-			if next(getgenv().Settings.SelectedStyles) == nil then
-				Toggles.StyleSpinToggle:SetValue(false)
-				Fluent:Notify({
-					Title = "Fearise Hub",
-					Content = "No styles selected. Stopping spin.",
-					Duration = 5
-				})
-				break
-			end
 			local MyStyle = lp:FindFirstChild("Style")
-			if MyStyle then
-				for _, v in pairs(getgenv().Settings.SelectedStyles) do
-					if type(v) == "table" and not table.find(v, MyStyle.Value) then
-						game:GetService("ReplicatedStorage").Packages.Knit.Services.StyleService.RE.Spin:FireServer()
-						task.wait(0.1)
-					else
-						task.wait(0.1)
-						Toggles.StyleSpinToggle:SetValue(false)
-						Fluent:Notify({
-							Title = "Fearise Hub",
-							Content = "You got Style: " .. MyStyle.Value,
-							Duration = 5
-						})
-						break
+			local StyleGui = pgui:FindFirstChild("Style")
+			if StyleGui then
+				local BG = StyleGui:FindFirstChild("BG")
+				if BG then
+					local LuckySpin = BG:FindFirstChild("LuckySpin")
+					if LuckySpin then
+						local Left = LuckySpin:FindFirstChild("Left")
+						local spinsNumber = string.match(Left.Text, "%d+")
+                		if tonumber(spinsNumber) > 0 then
+							if MyStyle then
+								if #getgenv().Settings.SelectedStyles > 0 then
+									if not table.find(getgenv().Settings.SelectedStyles, MyStyle.Value) then
+										game:GetService("ReplicatedStorage").Packages.Knit.Services.StyleService.RE.Spin:FireServer()
+										task.wait(0.1)
+									else
+										task.wait(0.1)
+										Toggles.StyleSpinToggle:SetValue(false)
+										Fluent:Notify({
+											Title = "Fearise Hub",
+											Content = "You got Style: " .. MyStyle.Value,
+											Duration = 5
+										})
+										break
+									end
+								else
+									task.wait(0.1)
+									Toggles.StyleSpinToggle:SetValue(false)
+									Fluent:Notify({
+										Title = "Fearise Hub",
+										Content = "Select Styles Before Use!",
+										Duration = 5
+									})
+									break
+								end
+							end
+						else
+							task.wait(0.1)
+							Toggles.StyleSpinToggle:SetValue(false)
+							Fluent:Notify({
+								Title = "Fearise Hub",
+								Content = "Your Dont Have Spins.",
+								Duration = 5
+							})
+							break
+						end
 					end
 				end
 			end
 		end		
+	end)
+end)
+
+Toggles.ZoneSpinToggle:OnChanged(function()
+	task.spawn(function()
+		getgenv().Settings.ZoneSpinToggle = Toggles.ZoneSpinToggle.Value
+		SaveSetting()
+		while getgenv().Settings.ZoneSpinToggle do
+			task.wait()
+			local MyZone = lp:FindFirstChild("Zone")
+			local ZoneGui = pgui:FindFirstChild("Zone")
+			if ZoneGui then
+				local BG = ZoneGui:FindFirstChild("BG")
+				if BG then
+					local LuckySpin = BG:FindFirstChild("LuckySpin")
+					if LuckySpin then
+						local Left = LuckySpin:FindFirstChild("Left")
+						local spinsNumber = string.match(Left.Text, "%d+")
+						if tonumber(spinsNumber) > 0 then
+							if MyZone then
+								if #getgenv().Settings.SelectedZones > 0 then
+									if not table.find(getgenv().Settings.SelectedZones, MyZone.Value) then
+										game:GetService("ReplicatedStorage").Packages.Knit.Services.ZoneService.RE.Spin:FireServer()
+										task.wait(0.1)
+									else
+										task.wait(0.1)
+										Toggles.ZoneSpinToggle:SetValue(false)
+										Fluent:Notify({
+											Title = "Fearise Hub",
+											Content = "You got Zone: " .. MyZone.Value,
+											Duration = 5
+										})
+										break
+									end
+								else
+									task.wait(0.1)
+									Toggles.ZoneSpinToggle:SetValue(false)
+									Fluent:Notify({
+										Title = "Fearise Hub",
+										Content = "Select Zones Before Use!",
+										Duration = 5
+									})
+									break
+								end
+							end
+						else
+							task.wait(0.1)
+							Toggles.ZoneSpinToggle:SetValue(false)
+							Fluent:Notify({
+								Title = "Fearise Hub",
+								Content = "Your Dont Have Spins.",
+								Duration = 5
+							})
+							break
+						end
+					end
+				end
+			end
+		end
 	end)
 end)
 
@@ -413,6 +531,7 @@ rs.Heartbeat:Connect(function()
                     local Char = Values:FindFirstChild("Char")
                     if Char and Char.Value ~= character then
                         character.HumanoidRootPart.CFrame = obj.CFrame
+						game:GetService("ReplicatedStorage").Packages.Knit.Services.BallService.RE.Block:FireServer()
                     elseif Char and Char.Value == character then
                         local Goal = GetGoalAutoFarm()
 						if Goal then
@@ -427,8 +546,10 @@ rs.Heartbeat:Connect(function()
                     if Char and Char.Value ~= character then
                         local Target = obj.Parent
                         local TargetHumanoidRootPart = Target:FindFirstChild("HumanoidRootPart")
-                        if TargetHumanoidRootPart then
-                            character.HumanoidRootPart.CFrame = TargetHumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
+						local TargetTeam = plrs:GetPlayerFromCharacter(Target)
+                        if TargetHumanoidRootPart and TargetTeam.Team ~= lp.Team then
+                            character.HumanoidRootPart.CFrame = TargetHumanoidRootPart.CFrame * CFrame.new(0, 0, -3)
+							game:GetService("ReplicatedStorage").Packages.Knit.Services.BallService.RE.Block:FireServer()
                             local Distance = (humanoidrootpart.Position - obj.Position).Magnitude
                             if Distance <= 5 then
                                 game:GetService("ReplicatedStorage").Packages.Knit.Services.BallService.RE.Steal:FireServer(TargetHumanoidRootPart.CFrame)
@@ -442,7 +563,16 @@ rs.Heartbeat:Connect(function()
                 game:GetService("ReplicatedStorage").Packages.Knit.Services.BallService.RE.Throw:FireServer(Vector2.new(0,0))
             end
         end
-    end
+    elseif getgenv().Settings.AutoFarmToggle and lp.Team.Name == "Visitor" then
+		local Teams = {"Home", "Away"}
+		local Positions = {"CF", "LW", "RW", "CM", "CB"}
+		for _, team in ipairs(Teams) do
+			for _, position in ipairs(Positions) do
+				game:GetService("ReplicatedStorage").Packages.Knit.Services.TeamService.RE.Select:FireServer(team, position)
+				task.wait(0.1)
+			end
+		end
+	end
 end)
 AutoDribbleLoop()
 
