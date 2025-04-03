@@ -413,11 +413,11 @@ Toggles.StyleSpinToggle:OnChanged(function()
 			if StyleGui then
 				local BG = StyleGui:FindFirstChild("BG")
 				if BG then
-					local LuckySpin = BG:FindFirstChild("LuckySpin")
-					if LuckySpin then
-						local Left = LuckySpin:FindFirstChild("Left")
+					local Spin = BG:FindFirstChild("Spin")
+					if Spin then
+						local Left = Spin:FindFirstChild("Left")
 						local spinsNumber = string.match(Left.Text, "%d+")
-                		if tonumber(spinsNumber) > 0 then
+                		if Left.Text ~= "$2000" then
 							if MyStyle then
 								if #getgenv().Settings.SelectedStyles > 0 then
 									if not table.find(getgenv().Settings.SelectedStyles, MyStyle.Value) then
@@ -472,11 +472,11 @@ Toggles.ZoneSpinToggle:OnChanged(function()
 			if ZoneGui then
 				local BG = ZoneGui:FindFirstChild("BG")
 				if BG then
-					local LuckySpin = BG:FindFirstChild("LuckySpin")
-					if LuckySpin then
-						local Left = LuckySpin:FindFirstChild("Left")
+					local Spin = BG:FindFirstChild("Spin")
+					if Spin then
+						local Left = Spin:FindFirstChild("Left")
 						local spinsNumber = string.match(Left.Text, "%d+")
-						if tonumber(spinsNumber) > 0 then
+						if Left.Text ~= "$2000" then
 							if MyZone then
 								if #getgenv().Settings.SelectedZones > 0 then
 									if not table.find(getgenv().Settings.SelectedZones, MyZone.Value) then
